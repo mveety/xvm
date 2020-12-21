@@ -1,0 +1,221 @@
+RISC-Veety -- 32-bit risc-ish architecture
+
+synopsis:
+	this is a 32-bit arch meant to experiment with a different
+	kind of addressing mode, hopefully allowing timesharing but
+	without using any type of virtual memory.
+
+registers:
+	R0..R7		-- general purpose registers
+	OP, C0		-- offset pointer
+	CP, C1		-- co-processor status register (see below)
+	PC, C2		-- program counter
+	SP, C3		-- stack pointer
+	FP, C4		-- frame pointer
+	SV, C5		-- syscall vector
+	FV, C6		-- interrupt vector
+	FL, C7		-- control register
+		0:		priv mode (0 = system, 1 = user)
+		1:		addressing mode (0 = absolute, 1 = relative)
+		2:		interrupt mode (0 = disabled, 1 = enabled)
+		3:		test flag (1 if last comparison was true, 0 otherwise)
+		4..7:	interrupt number
+		8:		int flag (set if an interrupt is thrown)
+		9:		overflow
+		10:		divide by zero
+		11..31:	unused
+
+instruction encoding:
+	struct {
+		u4int len		// length of args (in bytes)
+		u4int mod		// operation modifier (width, jump type, etc)
+		u8int opcode	// opcode
+		u8int args[len]	// instruction arguments
+	}
+	instructions can be at most 18 bytes long.
+
+(registers are encoded in 4 bits. consts and addrs are 32-bits)
+[reg = 0.5 bytes, consts and addrs are 4 bytes]
+{all instr are intel syntax aka name dest, src}
+
+instructions: [lengths are total instruction length. length field value is l-2]
+(l	cd[.mod]	args)
+	(description)
+
+modifiers:
+		0x0 = no modification
+	c =	0xf = conditional execution (see below)
+	w = width
+		0x1,b = 8-bit op (byte)
+		0x2,h = 16-bit op (half-word)
+		0x3,w = 32-bit op (word)
+	m = addressing
+		0x4,a = absolute memory op
+		0x8,r = relative memory op
+	all unmodified instructions are 32-bit and use the current
+	addressing mode
+
+data: [14]
+7	ld.wm reg, address
+3	ldr.wm reg, reg
+7	ldc.w reg, const
+		load memory into register
+7	ldi.wm reg, address
+		load memory into register from address stored in the given address
+7	sto.wm address, reg
+3	stor.wm reg, reg
+		store register to memory
+7	stoi.wm address, reg
+		store register to address inside given address
+3	mov reg1, reg2
+		reg1 = reg2
+3	swap reg1, reg2
+		swap contents reg1 and reg2
+3	push reg
+		push register onto the stack
+2	pusha
+		push R0-R7, OP, and FP to the stack
+3	pop reg
+		pop register from the stack
+6	popc const
+		pop stack const times
+2	popa
+		pop FP, OP, and R7-R0 from the stack
+
+bit and byte ops: (note: these ops have 8-bit constant arguments) [6]
+3	bset rdest, rsrc
+4	bsetc reg, const
+		set bit n in rdest
+3	bclr rdest, rsrc
+4	bclrc reg, const
+		unset bit n in rdest
+3	btest reg1, reg2
+4	btestc reg, const
+		if(reg1 & 1<<reg2) set FL:3
+
+unsigned math: [7]
+3	add r1, r2
+		r1 = r1+r2
+3	sub r1, r2
+		r1 = r1-r2
+3	mul r1, r2
+		r1 = r1*r2
+3	div r1, r2
+		r1 = r1/r2
+3	mod r1, r2
+		r1 = r1 % r2
+3	inc reg
+		reg++
+3	dec reg
+		reg--
+
+logic: [6]
+3	sr r1, r2
+		r1 = r1>>r2
+3	sl r1, r2
+		r1 = r1<<r2
+3	not reg
+		r1 = ~r1
+3	and r1, r2
+		r1 = r1 & r2
+3	or r1, r2
+		r1 = r1 ^ r2
+3	xor r1, r2
+		r1 = r1 | r2
+
+comparisons: [5]
+3	eq r1, r2
+		if r1 == r2 set FL:3
+3	neq r1, r2
+		if r1 != r2 set FL:3
+3	lt r1, r2
+		if r1 < r2 set FL:3
+3	gt r1, r2
+		if r1 > r2 set FL:3
+3	nz r1
+		if r1 != 0 set FL:3
+
+jump and branches: [15]
+6	jmp.m addr
+3	jmpr.m reg
+		jump to address
+7	jz.m reg1, addr
+3	jzr.m reg1, reg2
+		if reg1 == 0 then jump to reg2/addr
+7	jnz.m reg1, addr
+3	jnzr.m reg1, reg2
+		if reg1 != 0 then jump to reg2/addr
+6	br.m addr
+3	brr.m reg
+		if FL:3 == 1 then jump to address
+6	call.m addr
+3	callr.m reg
+		push PC to stack then jump to argument
+2	ret
+		pop PC from the stack and continue execution
+2	syscall
+		push PC to the stack, push FL to stack, set FL:0 to 0 and FL:1 to
+		0, then jump to SV
+2	sysret
+		pop FL from the stack, then pop PC from the stack, then continue
+		execution
+2	iret
+		pop FL from the stack, pop PC from the stack, continue execution
+3	int const
+		if FL:2 is set
+			throw interrupt const. push PC to stack, push FL to stack set
+			FL:4-7 with int, set FL:8, unset FL:0, unset FL:1, jump to FV
+		else
+			no op
+
+control instructions: [4]
+2	nop
+		no operation instruction
+2	sint
+		enable interrupts, set FL:2
+2	cint
+		disable interrupts, unset FL:2
+2	halt
+		stop execution until next int if they're enabled
+
+device i/o: [6]
+7	in.w reg1, const
+3	inr.w reg1, reg2
+		get input from device const/reg2 and put it in reg1
+7	out.w const, reg2
+3	outr.w reg1, reg2
+		output data in reg2 to const/reg1
+6	dint const
+3	dintr reg
+		signal device const/reg
+
+[63 instructions currently]
+
+Interrupts and system calls
+	there are four types of interrupts: system calls, software interrupts,
+hardware interrupts, and the continuation interrupt.
+
+system calls
+	system calls are unmaskable. when a system call happens, FL, OP, and PC
+are pushed to the stack, then FL:0 and FL:1 are unset then the proc jumps
+to SV. on a syscall return PC, OP, and FL are popped from the stack.
+
+software and hardware interrupts
+	these interrupts are the same as system calls, but can not happen if FL:8
+not set. interrupts, in addition to the system call set up, they set FL:8 and
+the interrupt number in FL:4..7. software interrupts always set FL:4..7 to
+0xf.
+
+continuation interrupts
+	these are transparent to the programmer. they just allow the processor to
+continue execution after a coprocessor call or hlt. these are fired off by
+hardware devices.
+
+conditional execution
+	All instructions can be prefixed with the conditional execution mode.
+Conditional execution only allows the instruction to be executed if the
+test flag (FL:3) is set. Limitations of this are that you can not use
+anything beyond the default modes on an instruction because the conditional
+execution mode is represented by having the mode field set to 0b1111, meaning
+both fields can not be decoded.
+

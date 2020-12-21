@@ -1,0 +1,11 @@
+(in-package :xvm)
+
+(defun fetch (c)
+  (let ((res nil)
+	(length 0))
+    (append-to-list res (memory (register c pc)))
+    (append-to-list res (memory (1+ (register c pc))))
+    (setf length (ldb (byte 4 4) (car res)))
+    (for (((r 0)) (< r length) ((incf r)))
+      (append-to-list res (memory (+ 2 (+ (register c pc) r)))))
+    (list :length (+ 2 length) :data res)))

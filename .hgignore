@@ -1,0 +1,19 @@
+syntax: glob
+*.swp
+*.8
+*.6
+*.5
+5.out
+6.out
+8.out
+mmutest
+*.o
+a.out
+*.fasl
+*.bin
+*.wx32fsl
+*.wx64fsl
+*.fas
+*.lib
+*.exe
+

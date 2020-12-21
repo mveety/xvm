@@ -1,0 +1,77 @@
+# xvm instruction list -- used to generate insts.h and insts.c
+# format is:
+# mnemonic opcode arglen width amode order regargs constargsz
+#
+revision 1
+# m		op		al	mw	mm	ord	re	con
+ld		0x80	5	1	1	0	1	4
+ldr		0x81	1	1	1	0	2	0
+ldc		0x82	5	1	0	0	1	4
+ldi		0x83	5	1	1	0	1	4
+sto		0x84	5	1	1	1	1	4
+stor	0x85	1	1	1	1	2	0
+stoi	0x86	5	1	1	1	1	4
+mov		0x87	1	0	0	0	2	0
+swap	0x88	1	0	0	0	2	0
+push	0x89	1	0	0	0	1	0
+pusha	0x8a	0	0	0	0	0	0
+pop		0x8b	1	0	0	0	1	0
+popc	0x8c	4	0	0	0	0	4
+popa	0x8d	0	0	0	0	0	0
+
+bset	0x8f	1	0	0	0	2	0
+bsetc	0x90	2	0	0	0	1	1
+bclr	0x91	1	0	0	0	2	0
+bclrc	0x92	2	0	0	0	1	1
+btest	0x93	1	0	0	0	2	0
+btestc	0x94	2	0	0	0	1	1
+
+add		0x95	1	0	0	0	2	0
+sub		0x96	1	0	0	0	2	0
+mul		0x97	1	0	0	0	2	0
+div		0x98	1	0	0	0	2	0
+mod		0x99	1	0	0	0	2	0
+inc		0x9a	1	0	0	0	1	0
+dec		0x9b	1	0	0	0	1	0
+
+sr		0x9c	1	0	0	0	2	0
+sl		0x9d	1	0	0	0	2	0
+not		0x9e	1	0	0	0	1	0
+and		0x9f	1	0	0	0	2	0
+or		0xa0	1	0	0	0	2	0
+xor		0xa1	1	0	0	0	2	0
+
+eq		0xa2	1	0	0	0	2	0
+neq		0xa3	1	0	0	0	2	0
+lt		0xa4	1	0	0	0	2	0
+gt		0xa5	1	0	0	0	2	0
+nz		0xa6	1	0	0	0	1	0
+# m		op		al	mw	mm	ord	re	con
+jmp		0xa7	4	0	1	0	0	4
+jmpr	0xa8	1	0	1	0	1	0
+jz		0xa9	5	0	1	0	1	4
+jzr		0xaa	1	0	1	0	2	0
+jnz		0xab	5	0	1	0	1	4
+jnzr	0xac	1	0	1	0	2	0
+br		0xad	4	0	1	0	0	4
+brr		0xae	1	0	1	0	1	0
+call	0xaf	4	0	1	0	0	4
+callr	0xb0	1	0	1	0	1	0
+ret		0xb1	0	0	0	0	0	0
+syscall	0xb2	0	0	0	0	0	0
+sysret	0xb3	0	0	0	0	0	0
+iret	0xb4	0	0	0	0	0	0
+int		0xb5	1	0	0	0	0	1
+
+nop		0xb6	0	0	0	0	0	0
+sint	0xb7	0	0	0	0	0	0
+cint	0xb8	0	0	0	0	0	0
+halt	0xb9	0	0	0	0	0	0
+
+in		0xba	5	1	0	0	1	4
+inr		0xbb	1	1	0	0	2	0
+out		0xbc	5	1	0	1	1	4
+outr	0xbd	1	1	0	0	2	0
+dint	0xbe	4	0	0	0	0	4
+dintr	0xbf	1	0	0	0	1	0
+

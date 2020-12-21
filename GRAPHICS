@@ -1,0 +1,59 @@
+xvm architecture graphics system
+
+registers:
+N	register	size	description
+00	FB			32		framebuffer start address
+01	FBSZ		32		framebuffer size
+02	XSIZE		32		framebuffer X size
+03	YSIZE		32		framebuffer Y size
+04	DEPTH		32		framebuffer colour depth
+05	CMD			32		command register
+06	ARG1		32		cmd arg 1
+07	ARG2		32		cmd arg 2
+08	ARG3		32		cmd arg 3
+09	ARG4		32		cmd arg 4
+0A	CINTR		00		command execute interrupt
+0B	CRINT		08		command finished cpu interrupt
+0C	REDRAW		00		buffer swap interrupt
+0D	MODE		08		graphics mode
+0E	REPLY1		32		command arg 5/result 1
+0F	REPLY2		32		command arg 6/result 2
+
+graphics modes:
+mode	description
+00		80x25 or 80x50 monochrome text mode
+01		640x480, 800x600, 1024x768, 1280x1024 2 bit, bit addressed
+		graphics mode.
+02		same resolutions as mode 01, but 2-bit byte addressed mode
+03		same resolutions as mode 01, but 8-bit (2 bits for each colour
+		plus alpha [AARRGGBB]) colour
+
+
+commands:
+0x00	-- no-op (all modes)
+0x01	-- memcpy (all modes)
+	1: source
+	2: dest
+	3: length
+	no return
+0x02	-- blit1 (modes 01, 02, 03)
+	1: source
+	2: x position
+	3: y position
+	4: x size
+	5: y size
+0x03	-- sprite setup (modes 01, 02, 03)
+	1: buffer
+	2: x size
+	3: y size
+	4: handle
+0x04	-- sprite draw (modes 01, 02, 03)
+	1: handle
+	2: x position
+	3: y position
+	4: visibility (0 = invisible, 1 = visible)
+0x05	-- switch mode
+	no args
+	switch to mode in MODE register with parameters in FB, FBSZ, XSIZE,
+	YSIZE, and DEPTH (if applicable)
+

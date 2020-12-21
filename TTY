@@ -1,0 +1,50 @@
+xvm builtin tty
+
+registers:
+N	register	size	description
+00	CMD			32		command register
+01	CINT		00		command execute interrupt
+02	DINT		08		device's cpu interrupt vector
+03	KBCTL		08		keyboard control byte
+04	KBDAT		08		keyboard data byte
+05	TTY1		08		teleprinter data
+06	TTYX		08		teleprinter x position
+07	TTYY		08		teleprinter y position
+08	TTYCAP		32		teleprinter capabilities
+		TTYCAP:0..7		x size
+		TTYCAP:8..15	y size
+		TTYCAP:16..31	unused bits
+09	UARTST		32		uart status
+
+keyboard interrupts
+	this device send an interrupt to the processor over the vector
+set in DINT. when an interrupt is thrown the keyboard status is
+set in KBCTL and the ASCII code of the key is stored in KBDAT. Once
+the interrupt is handled a device interrupt needs to be thrown on
+the CINT register.
+
+command protocol
+	commands are loaded into register CMD then CINT is thrown to
+start execution of the command.
+
+commands
+format: [4-bit command] [28-bit argument]
+		[4-bit command] [16-bit argument] [12-bit don't care]
+		[4-bit command] [16-bit arg] [12-bit argument]
+
+0x1:	UARTTOGGLE
+	enable or disable the uart.
+	UARTST:0 is 1 if enabled.
+0x2:	BAUDRATE	[16-bit argument] (unused for tty)
+	set uart's baud rate
+0x3:	PROTOCOL [28-bit argument] (unused for tty)
+	set the uart's protocol
+	arg format
+	ARG:0..3	number of start bits
+	ARG:4..7	number of parity bits
+	ARG:8..11	number of stop bits
+	ARG:12..27	start bit pattern
+0x4:	KBUFSZ [16-bit argument]
+	set the size of the keyboard input buffer. buffer size is in
+	keystrokes (so size of KBCTL+KBDAT}
+

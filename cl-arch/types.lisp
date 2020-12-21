@@ -1,0 +1,21 @@
+(in-package :xvm)
+
+(deftype u4int () '(unsigned-byte 4))
+(deftype u8int () '(unsigned-byte 8))
+(deftype u16int () '(unsigned-byte 16))
+(deftype u32int () '(unsigned-byte 32))
+
+(declaim (inline u8int u16int u32int)
+	 (ftype (function (fixnum) u4int) u4int)
+	 (ftype (function (fixnum) u8int) u8int)
+	 (ftype (function (fixnum) u16int) u16int)
+	 (ftype (function (fixnum) u32int) u32int))
+
+(defun u4int (num) (logand num #x0f))
+(defun u8int (num) (logand num #xff))
+(defun u16int (num) (logand num #xffff))
+(defun u32int (num) (logand num #xffffffff))
+(defmacro u4 (num) `(u4int ,num))
+(defmacro u8 (num) `(u8int ,num))
+(defmacro u16 (num) `(u16int ,num))
+(defmacro u32 (num) `(u32int ,num))

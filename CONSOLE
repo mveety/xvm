@@ -1,0 +1,21 @@
+xvm boot console
+
+registers:
+N	register	size	description
+00	CMD			8		command register
+01	INKEY		8		input buffer head (read only)
+02	OUTKEY		8		output buffer (write only)
+03	CINT		8		command interrupt
+
+commands:
+0x00: no-op
+	do nothing
+0x01:	set ignore keys
+0x02:	unset ignore keys
+	set whether the console should allow input from keyboard
+0x03:	set autoecho
+0x04:	unset autoecho
+	set or unset hardware echo
+0x05:	clear keybuf
+	clear the keyboard input buffer
+

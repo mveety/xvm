@@ -1,0 +1,31 @@
+# xvm register set
+# format is:
+# name value
+
+r0	00
+r1	01
+r2	02
+r3	03
+r4	04
+r5	05
+r6	06
+r7	07
+
+c0	08
+c1	09
+c2	10
+c3	11
+c4	12
+c5	13
+c6	14
+c7	15
+
+op	08
+cp	09
+pc	10
+sp	11
+fp	12
+sv	13
+fv	14
+fl	15
+
