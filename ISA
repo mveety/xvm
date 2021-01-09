@@ -201,8 +201,8 @@ are pushed to the stack, then FL:0 and FL:1 are unset then the proc jumps
 to SV. on a syscall return PC, OP, and FL are popped from the stack.
 
 software and hardware interrupts
-	these interrupts are the same as system calls, but can not happen if FL:8
-not set. interrupts, in addition to the system call set up, they set FL:8 and
+	these interrupts are the same as system calls, but can not happen if FL:2
+not set. interrupts, in addition to the system call set up, set FL:8 and
 the interrupt number in FL:4..7. software interrupts always set FL:4..7 to
 0xf.
 
