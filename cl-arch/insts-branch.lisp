@@ -61,10 +61,10 @@
 (definstruction ret (:args 0 :cycles 1 :writepc nil)
   (setf (register cpu pc) (stack-pop cpu)))
 
-(definstruction syscall (:args 0 :cycles 1 :writepc nil)
+(definstruction syscall (:args 0 :cycles 1 :writepc nil :use-len t)
   (if (not (stack-check-range cpu 2 :push))
       (cpuerror 0))
-  (stack-push cpu (register cpu pc))
+  (stack-push cpu (+ (register cpu pc) len))
   (stack-push cpu (register cpu fl))
   (setf (flag cpu 0) 0
 	(flag cpu 1) 0
