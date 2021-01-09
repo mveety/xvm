@@ -100,6 +100,7 @@
 	   (flagp c 2))
       (progn
 	(stack-push c (register c pc))
+	(stack-push c (register c op))
 	(stack-push c (register c fl))
 	(setf (register c pc) (register c fv)
 	      (flag c 0) 0

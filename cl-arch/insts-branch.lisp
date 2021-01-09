@@ -65,6 +65,7 @@
   (if (not (stack-check-range cpu 2 :push))
       (cpuerror 0))
   (stack-push cpu (+ (register cpu pc) len))
+  (stack-push cpu (register cpu op))
   (stack-push cpu (register cpu fl))
   (setf (flag cpu 0) 0
 	(flag cpu 1) 0
@@ -72,6 +73,7 @@
 
 (defun sys-iret-common (cpu)
   (setf (register cpu fl) (stack-pop cpu)
+	(register cpu op) (stack-pop cpu)
 	(register cpu pc) (stack-pop cpu)))
 
 (definstruction sysret (:args 0 :cycles 1 :writepc nil)
