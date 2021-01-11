@@ -7,7 +7,7 @@
   :description "xvm platform emulator"
   :license "BSD"
   :version "1.0"
-  :depends-on (:bordeaux-threads :chanl)
+  :depends-on (:bordeaux-threads :chanl :xvmasm)
   :serial t
   :components ((:file "package")
 	       ;; the core of the implementation
