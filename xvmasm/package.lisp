@@ -3,6 +3,8 @@
 (defpackage :xvmasm
   (:use :cl)
   (:export #:assemble
+	   #:assemble-strings
+	   #:assemble-string-list
 	   #:xvmasm-main
 	   #:emit-exec-file
 	   #:+revision+
