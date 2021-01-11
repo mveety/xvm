@@ -67,12 +67,12 @@ in stone.
   implementation will significantly reduce execution speeds because
   it is called for every single instruction.
   |#
-  (defun decode (c rinst)
+  (defun decode (cpu rinst)
     ;; the processor is included in this functions arguments in case
     ;; future changes require it. Also, it semantically makes sense
     ;; for all of the pipeline functions to require the processor as
     ;; and argument even if it's unused.
-    (declare (ignore c))
+    (declare (ignore cpu))
     (let* ((len (getf rinst :length))
 	   (dat (getf rinst :data))
 	   (mods (ldb (byte 4 0) (car dat)))

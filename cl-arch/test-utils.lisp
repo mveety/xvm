@@ -1,4 +1,4 @@
-(in-package :xvm.test)
+(in-package :xvm)
 
 (defun test-get-microinst (name)
   (let ((insts *inst-list*)

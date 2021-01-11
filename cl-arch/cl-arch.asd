@@ -25,6 +25,7 @@
 	       (:file "decode")     ; instruction decode
 	       (:file "exec")       ; instruction execution
 	       (:file "devices")    ; core device interface
+	       (:file "test-utils") ; repl-based testing util functions
 	       ;; instruction implementations
 	       (:file "insts-data")
 	       (:file "insts-byte")
