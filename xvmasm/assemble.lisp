@@ -21,7 +21,7 @@
     (setf *total-files* (length *loaded-files*))
     *datastream*))
 
-(defun assemble-strings (offset &rest strings)
+(defun assemble-strings (offset strings)
   (let ((*start-point* offset)
 	(*token-stream* nil)
 	(*instruction-stream* nil)
@@ -37,6 +37,3 @@
     (resolve-all-const-args *instruction-stream*)
     (emit-stage2-inst-stream *instruction-stream*)
     (generate-stage2-bytestream *stage2-inst-stream*)))
-
-(defmacro assemble-string-list (offset string-list)
-  `(assemble-strings ,offset ,@string-list))
