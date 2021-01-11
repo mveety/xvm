@@ -21,7 +21,7 @@ registers:
 		3:		test flag (1 if last comparison was true, 0 otherwise)
 		4..7:	interrupt number
 		8:		int flag (set if an interrupt is thrown)
-		9:		overflow
+		9:		underflow/overflow
 		10:		divide by zero
 		11..31:	unused
 

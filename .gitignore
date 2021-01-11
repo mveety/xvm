@@ -16,4 +16,5 @@ a.out
 *.lib
 *.exe
 .hg/*
+.#*
 
