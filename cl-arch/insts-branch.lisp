@@ -14,32 +14,32 @@
 (definstruction jmpr (:args 1 :cycles 1 :writepc nil :use-mode t)
   (setf (register cpu pc) (process-addr cpu mode (register cpu (car args)))))
 
-(definstruction jz (:args 2 :cycles 1 :writepc nil :use-mode t)
+(definstruction jz (:args 2 :cycles 1 :writepc nil :use-mode t :use-len t)
   (if (zerop (register cpu (car args)))
       (setf (register cpu pc) (process-addr cpu mode (cadr args)))
       (incf (register cpu pc) len)))
 
-(definstruction jzr (:args 2 :cycles 1 :writepc nil :use-mode t)
+(definstruction jzr (:args 2 :cycles 1 :writepc nil :use-mode t :use-len t)
   (if (zerop (register cpu (car args)))
       (setf (register cpu pc) (process-addr cpu mode (register cpu (cadr args))))
       (incf (register cpu pc) len)))
 
-(definstruction jnz (:args 2 :cycles 1 :writepc nil :use-mode t)
+(definstruction jnz (:args 2 :cycles 1 :writepc nil :use-mode t :use-len t)
   (if (not (zerop (register cpu (car args))))
       (setf (register cpu pc) (process-addr cpu mode (cadr args)))
       (incf (register cpu pc) len)))
 
-(definstruction jnzr (:args 2 :cycles 1 :writepc nil :use-mode t)
+(definstruction jnzr (:args 2 :cycles 1 :writepc nil :use-mode t :use-len t)
   (if (not (zerop (register cpu (car args))))
       (setf (register cpu pc) (process-addr cpu mode (register cpu (cadr args))))
       (incf (register cpu pc) len)))
 
-(definstruction br (:args 1 :cycles 1 :writepc nil :use-mode t)
+(definstruction br (:args 1 :cycles 1 :writepc nil :use-mode t :use-len t)
   (if (flagp cpu 3)
       (setf (register cpu pc) (process-addr cpu mode (car args)))
       (incf (register cpu pc) len)))
 
-(definstruction brr (:args 1 :cycles 1 :writepc nil :use-mode t)
+(definstruction brr (:args 1 :cycles 1 :writepc nil :use-mode t :use-len t)
   (if (flagp cpu 3)
       (setf (register cpu pc) (process-addr cpu mode (register cpu (car args))))
       (incf (register cpu pc) len)))
