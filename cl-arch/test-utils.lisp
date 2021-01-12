@@ -16,3 +16,15 @@
 
 (defun asm (start-address &rest strings)
   (assemble start-address strings))
+
+(defun memory-dump (start len)
+  (let ((rval nil)
+	(fixes (range-list start (1- (+ start len)))))
+    (dolist (x fixes)
+      (append-to-list rval (memory x)))
+    rval))
+
+(defun run-cycle (cpu)
+  (let* ((fetch-data (fetch cpu))
+	 (decode-data (decode cpu fetch-data)))
+    (exec cpu decode-data)))
