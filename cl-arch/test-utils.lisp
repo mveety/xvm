@@ -57,3 +57,25 @@
 		    (cadr x))
 	    (setf retval nil))))
     (list retval tcpu)))
+
+#|
+test-asm-test should output something like:
+passed: r0 = 10
+passed: r2 = 14
+passed: r3 = 24
+(T
+ #S(CPU
+    :REGISTERS #(10 14 14 24 0 0 0 0 0 0 16 0 0 0 0 0)
+    :SCRATCH-REG #(10 14 14 14 0 0 0 0 0 0 13 0 0 0 0 0)
+    :DO-INTERRUPT NIL
+    :INTERRUPT-NUMBER 0
+    :NEXT-PC 0
+    :HALTED NIL
+    :CYCLES 4))
+|#
+(defun test-asm-test ()
+  (asm-test `((,r0 15) (,r1 14)) `((,r0 10) (,r2 14) (,r3 24))
+	    "ldc r0,10"
+	    "mov r2,r1"
+	    "mov r3,r2"
+	    "add r3,r0"))
