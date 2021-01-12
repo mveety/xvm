@@ -7,6 +7,13 @@
 	  (getf (car regs) :value)
 	  (reg-value-by-id regid (cdr regs)))))
 
+(defun reg-id-by-value (reg-value &optional (regs *reg-list*))
+  (if (equal regs nil)
+      nil
+      (if (equal (getf (car regs) :value) reg-value)
+	  (getf (car regs) :string)
+	  (reg-id-by-value reg-value (cdr regs)))))
+
 (defun generate-instruction-bytestream (inst)
   (let* ((instdef (get-instruction-def (getf inst :opcode)))
 	 (opcode-field (getf instdef :opcode))
