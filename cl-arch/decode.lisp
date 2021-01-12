@@ -86,7 +86,10 @@ in stone.
 	    (getf rval :length) len
 	    (getf rval :data) dat)
       (if (getf microinst :modwidth)
-	  (setf (getf rval :width) (ldb (byte 2 0) mods)))
+	  (setf (getf rval :width)
+		(if (equal (ldb (byte 2 0) mods) 0)
+		    nil
+		    (ldb (byte 2 0) mods))))
       (if (getf microinst :modmem)
 	  (setf (getf rval :mem) (ldb (byte 2 2) mods)))
       (case (getf microinst :regargs)
