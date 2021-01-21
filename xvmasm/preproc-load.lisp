@@ -11,5 +11,5 @@
       (if *error-on-plugin-load*
 	  (error "plugin loading is disabled!"))))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+(eval-when (:load-toplevel :execute)
   (add-preproc-plugin "load" #'preproc-load 1))

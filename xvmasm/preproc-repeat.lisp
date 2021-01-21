@@ -10,5 +10,5 @@
 	 (incf i))
     (dformat t "i = ~a, ntimes = ~a~%" i ntimes)))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+(eval-when (:load-toplevel :execute)
   (add-preproc-plugin "repeat" #'preproc-repeat 4))
