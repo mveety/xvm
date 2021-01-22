@@ -108,7 +108,7 @@ in stone.
 		 (1 (setf (getf rval :arg1) (le-list-to-u8int (cadr args))
 			  (getf rval :arg0) (ldb (byte 4 4) (car args))))
 		 (0 (setf (getf rval :arg0) (ldb (byte 4 4) (car args)))))))
-	(0 (if (getf microinst :constarg)
+	(0 (if (not (equal (getf microinst :constarg) 0))
 	       (setf (getf rval :arg0) (le-list-to-uint args)))))
       rval))
 
