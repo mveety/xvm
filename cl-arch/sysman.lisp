@@ -42,6 +42,9 @@ defparameters block.
 	       (*nvram* (make-byte-array *nvram-size*))
 	       (*sysrom* (make-byte-array *sysrom-size*))
 	       (*sysram* (make-byte-array *sysram-size*))
+	       (*bootrom-file* "xvmboot.rom")
+ 	       (*nvram-file* "nvram.bin")
+	       (*sysrom-file* "xvmsys.rom")
 	       (*sm-mapped* t)
 	       ;; main ram i/o protocol
 	       (*mainram-read* #'default-reader)
