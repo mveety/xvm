@@ -2,7 +2,7 @@
 
 (in-package :cl-user)
 
-(asdf:defsystem cl-arch
+(asdf:defsystem xvm
   :author "Matthew Veety <mveety@gmail.com>"
   :description "xvm platform emulator"
   :license "BSD"

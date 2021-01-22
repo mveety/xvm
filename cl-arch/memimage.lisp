@@ -56,6 +56,9 @@
 	t
 	nil)))
 
+(defun load-file-to-memory (fname &optional (start 0))
+  (load-memimage-to-memory (read-file-to-memimage fname) start))
+
 (defun check-memimage (memimage)
   (if (not (equal (car memimage) 'memimage))
       nil
@@ -68,5 +71,3 @@
 		 (equal size1 size2))
 	    t
 	    nil))))
-
-       

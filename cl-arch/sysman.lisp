@@ -139,3 +139,34 @@ defparameters block.
 
 (defun unmap-sysman ()
   (setf *sm-mapped* nil))
+
+(defun load-bootrom (&optional (fname *bootrom-file*))
+  (if (probe-file fname)
+      (let ((img (read-file-to-memimage fname)))
+	(if (<= (getf (cdr img) :size) *bootrom-size*)
+	      (load-memimage-to-buffer img *bootrom*)))))
+
+(defun load-sysrom (&optional (fname *sysrom-file*))
+  (if (probe-file fname)
+      (let ((img (read-file-to-memimage fname)))
+	(if (<= (getf (cdr img) :size) *sysrom-size*)
+	      (load-memimage-to-buffer img *sysrom*)))))
+
+(defun save-nvram (&optional (fname *nvram-file*))
+  (with-open-file (nvram-stream fname
+			 :direction :output
+			 :element-type 'unsigned-byte
+			 :if-does-not-exist :create
+			 :if-exists :supersede)
+    (dotimes (n (length *nvram*))
+      (write-byte (aref *nvram* n) nvram-stream))))
+
+(defun load-nvram (&optional (fname *nvram-file*))
+  (if (probe-file fname)
+      (let ((lst (read-file-to-list fname)) tmp)
+	(if (equal (length lst) (length *nvram*))
+	    (progn
+	      (setf tmp (load-list-to-buffer lst *nvram*))
+	      (if (equal (getf tmp :size)
+			 (getf tmp :written))
+		  t))))))
