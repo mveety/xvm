@@ -86,12 +86,11 @@ implementation is unable to make big arrays (like ccl, for example)
   (if (not *block-ram-initialized*)
       (progn
 	(populate-ram-blocks *ram-size*)
-	(setf *block-ram-initialized* t)
-	(add-memmap-entry (1+ (cadr *rom-map*))
-			  (- *ram-size* *rom-size*)
-			  #'block-ram-read
-			  #'block-ram-write
-			  0
-			  #'block-ram-check)
-	t)
-      nil))
+	(setf *block-ram-initialized* t)))
+  (add-memmap-entry 0
+		    (- *ram-size* *rom-size*)
+		    #'block-ram-read
+		    #'block-ram-write
+		    0
+		    #'block-ram-check)
+  nil)

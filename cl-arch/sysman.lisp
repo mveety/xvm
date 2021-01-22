@@ -5,14 +5,16 @@ system manager memory sizes and such.
 note: if these are changed be sure to update the declaim form below this
 defparameters block.
 |#
-(defparameters (*bootrom-size* 512)
-               (*nvram-size* 200)
-               (*sysram-size* (* 1024 1024))
+(defparameters (*rom-start-addr* (megabytes 28))
+	       (*bootrom-size* 512)
+	       (*nvram-size* 200)
+	       (*sysram-size* (* 1024 1024))
 	       (*rom-size* (* 4 (* 1024 1024)))
 	       (*sysrom-size* (- *rom-size*
-				(+ *bootrom-size*
-				   *nvram-size*
-				   *sysram-size*))))
+	       		  (+ *bootrom-size*
+	       		     *nvram-size*
+	       		     *sysram-size*))))
+
 ;;; note: depending on your lisp implementation it might not like
 ;;; how big *sysrom* and *sysram* are. you might need to fiddle with
 ;;; this to make it work. it seems to work well on sbcl on windows
@@ -32,8 +34,10 @@ defparameters block.
                (*nvram-map* (mml-prev *bootrom-map* *nvram-size*))
                (*sysrom-map* (mml-prev *nvram-map* *sysrom-size*))
 	       (*sysram-map* (mml-prev *sysrom-map* *sysram-size*))
-	       (*rom-map* (make-map-list 0 *rom-size*))
+	       (*rom-map* (make-map-list *rom-start-addr* *rom-size*))
 	       ;; system manager variables and state
+	       ;; these should probably be initialized when the sysman
+	       ;; is initialized and mapped instead of now.
 	       (*bootrom* (make-byte-array *bootrom-size*))
 	       (*nvram* (make-byte-array *nvram-size*))
 	       (*sysrom* (make-byte-array *sysrom-size*))
@@ -118,7 +122,7 @@ defparameters block.
 		    *rom-size*
 		    #'sm-read
 		    #'sm-write
-		    0
+		    (car *rom-map*)
 		    #'sm-check))
 
 (defun initialize-sysman (backing-reader backing-writer backing-checker)

@@ -34,20 +34,23 @@
       nil))
 
 (defun initialize-ram ()
-  (setf *ram* (make-byte-array *ram-size*)
-	*ram-initialized* t)
-  (add-memmap-entry (1+ (cadr *rom-map*))
+  (if (not *ram-initialized*)
+	   (setf *ram* (make-byte-array *ram-size*)
+		 *ram-initialized* t))
+  (add-memmap-entry 0
 		    (- *ram-size* *rom-size*)
 		    #'ram-read
 		    #'ram-write
 		    0
-		    #'ram-check))
+		    #'ram-check)
+  nil)
 
 (defun initialize-all-memory ()
   (if (equal *ram-driver* 'block)
       (progn
-	(initialize-sysman #'block-ram-read #'block-ram-write #'block-ram-check)
-	(initialize-block-ram))
+	(initialize-block-ram)
+	(initialize-sysman #'block-ram-read #'block-ram-write #'block-ram-check))
       (progn
-	(initialize-sysman #'ram-read #'ram-write #'ram-check)
-	(initialize-ram))))
+	(initialize-ram)
+	(initialize-sysman #'ram-read #'ram-write #'ram-check)))
+  nil)
