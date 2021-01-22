@@ -37,4 +37,5 @@
 	       (:file "insts-devices")
 	       ;; device implementations
 	       (:file "device-console")
+	       (:file "device-bootcons")
 	       ))

@@ -10,7 +10,7 @@
 	 :initform 0
 	 :type u32int)
    (memory :initarg :memory
-	   :initform (make-byte-array 512))))
+	   :initform nil)))
 
 (defgeneric device-read (device-object addr)
   (:documentation "read from a device"))
@@ -29,12 +29,15 @@
 				    :adjustable nil
 				    :initial-element nil))
 
-(defun register-device (device-object address)
+(defun register-device (device-object address &key (initialize t))
   (if (>= address *total-devices*)
       (error "device high order address is higher than max address ~a"
 	     *total-devices*))
   (if (not (aref *devices* address))
-      (setf (aref *devices* address) device-object)
+      (progn
+	(if initialize
+	    (device-init device-object))
+	(setf (aref *devices* address) device-object))
       (if *error-on-device-remap*
 	  (error "unable to remap device ~a" address)
 	  (let ((*error-on-device-remap* t))
@@ -82,6 +85,20 @@
 	    (error "device ~a is unmapped!" high-byte)
 	    nil)
 	(device-interrupt device-object low-byte))))
+
+(defun devinfo (address)
+  (if (aref *devices* address)
+      (with-slots (name) (aref *devices* address)
+	(list :name name
+	      :address address
+	      :object (aref *devices* address)))))
+
+(defun all-devinfo ()
+  (let ((devlist nil) tmp)
+    (dotimes (n *total-devices*)
+      (if (setf tmp (devinfo n))
+	  (append-to-list devlist tmp)))
+    devlist))
 
 ;;; this is for devices to throw ints
 (defun cpuinterrupt (int)
