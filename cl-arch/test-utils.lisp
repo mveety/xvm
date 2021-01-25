@@ -28,6 +28,20 @@
 	 (decode-data (decode cpu fetch-data)))
     (exec cpu decode-data)))
 
+(defun exec-memory (cpu start-address)
+  (setf (register cpu pc) start-address
+	(cpu-halted cpu) nil)
+  (while (not (cpu-halted cpu))
+    (run-cycle cpu))
+  cpu)
+
+(defun exec-file (fname start-address)
+  (let ((cpu (make-cpu)))
+    (if (not *ram-initialized*)
+	(initialize-all-memory))
+    (load-file-to-memory fname start-address)
+    (exec-memory cpu start-address)))
+
 ;;; quick and dirty function to more easily test the processor
 (defun asm-test (reg-initials reg-results &rest insts)
   (let ((tcpu (make-cpu))

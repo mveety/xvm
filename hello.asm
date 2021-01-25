@@ -23,7 +23,7 @@ putstring:
 	ldr.b r0,r1	; load byte from *r1
 	jz r0,@.done
 	call @putchar
-	add r0,r2
+	add r1,r2
 	jmp @.loop
 .done:
 	ret
