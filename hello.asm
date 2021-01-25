@@ -37,5 +37,5 @@ main:
 
 message:
 	%string "Hello World!"
+	%byte 13,10
 	%byte 0
-
