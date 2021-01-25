@@ -21,11 +21,11 @@
     (incommon cpu width devaddr (car args))))
 
 (definstruction out (:args 2 :cycles 1 :use-width t)
-  (outcommon cpu width (cadr args) (car args)))
+  (outcommon cpu width (car args) (cadr args)))
 
 (definstruction outr (:args 2 :cycles 1 :use-width t)
-  (let ((devaddr (register cpu (cadr args))))
-    (outcommon cpu width devaddr (car args))))
+  (let ((devaddr (register cpu (car args))))
+    (outcommon cpu width devaddr (cadr args))))
 
 (definstruction dint (:args 1 :cycles 1 :cpu nil)
   (devinterrupt (car args)))
