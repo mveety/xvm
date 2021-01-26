@@ -5,78 +5,61 @@
    (start-address :initform 0)
    (size :initform 0)
    (memory :initform nil)
-   (outchan :initform (make-instance 'chanl:channel))
    (stream :initform *terminal-io*
 	   :initarg :stream)
-   (inproc :initform nil)
-   (outproc :initform nil)
-   (cmdreg :initform 0)
-   (kblock :initform (bt:make-lock "keybuf lock"))
-   (ignore-keys :initform t)
-   (autoecho :initform nil)
-   (keybuf :initform nil)))
+   (devproc :initform nil)
+   (consbuf :initform nil)
+   (conslock :initform (bt:make-lock "console object lock"))
+   ;; registers
+   (xsize :initform 80)
+   (ysize :initform 24)
+   (curx :initform 0)
+   (cury :initform 0)
+   (autoecho :initform t) ; echo keys read from the keyboard
+   (has-keys :initform nil) ; has keys in the buffer (for polling)
+   (allow-int :initform t) ; allow device to send interrupts to the cpu
+   (int-num :initform #16r0f
+	    :initarg :interrupt) ; interrupt vector
+   ))
 
-(defun cons-reader (cons)
-  (let ((keytmp 'eof))
-    (with-slots (kblock keybuf stream ignore-keys
-			outchan autoecho) cons
-      (while (not (equal keytmp 'eof))
-	(setf keytmp (read-byte stream nil 'eof))
-	(unless (or ignore-keys (equal keytmp 'eof))
-	  (when autoecho
-	    (chanl:send outchan keytmp :blockp nil))
-	  (bt:with-lock-held (kblock)
-	    (append-to-list keybuf keytmp)))))))
+(defun console-putch (cons win char)
+  (with-slots (xsize ysize curx cury) cons
+    (if (>= curx xsize)
+	(progn
+	  (incf cury)
+	  (setf curx 0)))
+    (if (>= cury ysize)
+	(setf cury 0))
+    (charms:write-char-at-point win char curx cury)))
 
-(defun cons-writer (cons)
-  (let (outtmp)
-    (with-slots (outchan stream) cons 
-      (loop
-	 (setf outtmp (chanl:recv outchan))
-	 (write-byte outtmp stream)))))
-
-(defmethod device-interrupt ((cons console) addr)
-  (when (equal addr 3)
-    (with-slots (cmdreg ignore-keys autoecho kblock keybuf) cons
-      (case cmdreg
-	(0 nil)
-	(1 (setf ignore-keys t))
-	(2 (setf ignore-keys nil))
-	(3 (setf autoecho t))
-	(4 (setf autoecho nil))
-	(5 (bt:with-lock-held (kblock)
-	     (setf keybuf nil)))
-	(otherwise nil)))))
-
-(defmethod device-read ((cons console) addr)
-  (let ((rval nil))
-    (with-slots (cmdreg kblock keybuf) cons
-      (case addr
-	(0 (setf rval cmdreg))
-	(1 (bt:with-lock-held (kblock)
-	     (setf rval (car keybuf))
-	     (unless (equal rval nil)
-	       (setf keybuf (cdr keybuf)))))
-	(otherwise (setf rval nil))))
-    (when (equal rval nil)
-      (setf rval 0))
-    (u8int rval)))
-
-(defmethod device-write ((cons console) addr value)
-  (with-slots (cmdreg outchan) cons
-    (case addr
-      (0 (setf cmdreg (u8int value))
-	 nil)
-      (2 (chanl:send outchan (u8int value))
-	 nil)
-      (otherwise nil))))
-
-(defmethod device-init ((cons console))
-  (with-slots (inproc outproc) cons
-    (when (equal inproc nil)
-      (setf inproc (bt:make-thread (lambda () (cons-reader cons))
-				   :name "console input thread")))
-    (when (equal outproc nil)
-      (setf outproc (bt:make-thread (lambda () (cons-writer cons))
-				    :name "console output thread"))))
-  nil)
+(defun console-process-defun (cons)
+  (with-slots (memory stream consbuf conslock
+	       xsize ysize curx cury
+	       autoecho has-keys allow-int int-num) cons
+    (charms:with-curses ()
+      (let ((keyin nil)
+	    (win charms:*standard-window*)
+	    (tmp nil)
+	    )
+	(charms:disable-echoing)
+	(charms:enable-raw-input)
+	(multiple-value-bind (w h)
+	    (charms:window-dimensions win)
+	  (setf xsize w
+		ysize h))
+	(loop until exit do
+	  (setf keyin (charms:get-char win :ignore-error t))
+	  (bt:with-lock-held (conslock)
+	    (if (not (equal keyin nil))
+		(progn
+		  (append-to-list memory (char-code keyin))
+		  (setf has-keys t)
+		  (if allow-int (cpuinterrupt (u4int int-num)))
+		  (if autoecho (append-to-list consbuf (char-code keyin)))
+		  (setf keyin nil))
+		(progn
+		  (if (not (equal consbuf nil))
+		      (console-putch cons win (code-char (car consbuf))))
+		  (setf consbuf (cadr consbuf)))))
+	  (charms:move-cursor win curx cury)
+	  (sleep 1/60))))))
